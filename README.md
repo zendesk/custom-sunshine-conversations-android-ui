@@ -186,7 +186,7 @@ Add calls to those two methods in the initialization callback:
 ```java
 protected void onCreate(Bundle savedInstanceState) {
       ...
-      Smooch.init(getApplication(), new Settings("5a4becab852acd004bdedffc"), new SmoochCallback() {
+      Smooch.init(getApplication(), new Settings("<your_app_id>"), new SmoochCallback() {
           @Override
           public void run(SmoochCallback.Response response) {
               getMessages();
@@ -243,7 +243,7 @@ Lastly, in the _onCreate_ method, we need to attach our _MainActivity_ as the de
 ```java
 protected void onCreate(Bundle savedInstanceState) {
       ...
-      Smooch.init(getApplication(), new Settings("5a4becab852acd004bdedffc"), new SmoochCallback() {
+      Smooch.init(getApplication(), new Settings("<your_app_id>"), new SmoochCallback() {
           @Override
           public void run(SmoochCallback.Response response) {
               Smooch.getConversation().setDelegate(MainActivity.this);
