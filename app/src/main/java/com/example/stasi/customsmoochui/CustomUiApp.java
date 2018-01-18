@@ -13,6 +13,6 @@ public class CustomUiApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Smooch.init(this, new Settings("5a4becab852acd004bdedffc"), null);
+        Smooch.init(this, new Settings("<your_app_id>"), null);
     }
 }
