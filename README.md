@@ -123,15 +123,23 @@ See this [guide](https://docs.smooch.io/guide/native-android-sdk/) for adding th
 - in _Gradle Scripts > build.gradle (Module: app)_ add the line `implementation 'io.smooch:core:5.7.3'` to dependencies
 - click _Sync Now_ to load the new dependency.
 
-Now in the _MainActivity_ class's _onCreate_ method add the following init call to initialize Smooch:
+Now you'll have to create an Application class which we'll call _CustomUiApp_, and link it in _manifests > AndroidManifest.xml_ with this entry under _application_ `android:name="<your_package_name>.CustomUiApp"`.
+
+Now in the _CustomUiApp_ class's _onCreate_ method add the following init call to initialize Smooch:
 
 ```java
-protected void onCreate(Bundle savedInstanceState) {
-  ...
-  Smooch.init(getApplication(), new Settings("<your_app_id>"), new SmoochCallback() {
-      @Override
-      public void run(SmoochCallback.Response response) {}
-  });
+package <your_package_name>;
+
+import android.app.Application;
+import io.smooch.core.Settings;
+import io.smooch.core.Smooch;
+
+public class CustomUiApp extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Smooch.init(this, new Settings("<your_app_id>"), null);
+    }
 }
 ```
 
@@ -164,10 +172,10 @@ public void sendMessage(View view) {
 }
 ```
 
-### 3. Display messages
-We're going to render our initial conversation state.
+### 3. Display
+Smooch exposes [conversation delegate methods](https://docs.smooch.io/api/android/io/smooch/core/Conversation.Delegate.html) that allow you to capture incoming and outgoing messages as well as other events. We're going to use these methods to display new messages in our UI.
 
-First we're going to create a new method to write messages to our _conversationText_ property. In _MainActivity_ add a _getMessages_ method:
+Before we star adding delegates we need to create a new method to write messages to our _conversationText_ property. In _MainActivity_ add a _getMessages_ method:
 
 ```java
 public void getMessages() {
@@ -179,27 +187,7 @@ public void getMessages() {
 }
 ```
 
-Now in our _onCreate_ method in _MainActivity_ we can call _getMessages_ and _renderConversationHistory_ in the _Smooch.init_ callback to show existing messages when the application loads.
-
-Add calls to those two methods in the initialization callback:
-
-```java
-protected void onCreate(Bundle savedInstanceState) {
-      ...
-      Smooch.init(getApplication(), new Settings("<your_app_id>"), new SmoochCallback() {
-          @Override
-          public void run(SmoochCallback.Response response) {
-              getMessages();
-              renderConversationHistory();
-          }
-      });
-}
-```
-
-### 4. Receive new messages
-Smooch exposes [conversation delegate methods](https://docs.smooch.io/api/android/io/smooch/core/Conversation.Delegate.html) that allow you to capture incoming and outgoing messages as well as other events. We're going to use these methods to display new messages in our UI.
-
-First we're going to implement the delegate in our _MainActivity_ class with _implements Conversation.Delegate_ like so:
+Now, we're going to implement the delegate in our _MainActivity_ class with _implements Conversation.Delegate_ like so:
 
 ```java
 public class MainActivity extends AppCompatActivity implements Conversation.Delegate {...}
@@ -235,7 +223,19 @@ public boolean shouldTriggerAction(MessageAction messageAction) {
 Second, we need to call our _getMessages_ and _renderConversationHistory_ methods in the _onMessagesReceived_ delegate so that we update the UI when new messages are received. Add those calls like so:
 
 ```java
+public void onMessagesReceived(Conversation conversation, List<Message> list) {
+    getMessages();
+    renderConversationHistory();
+}
+```
 
+Thirdly, we need to call our _getMessages_ and _renderConversationHistory_ methods in the _onInitializationStatusChanged_ delegate so that we update the UI when the application starts. Add those calls like so:
+
+```java
+public void onInitializationStatusChanged(InitializationStatus initializationStatus) {
+    getMessages();
+    renderConversationHistory();
+}
 ```
 
 Lastly, in the _onCreate_ method, we need to attach our _MainActivity_ as the delegate to the Smooch conversation by adding this line to the init callback:
