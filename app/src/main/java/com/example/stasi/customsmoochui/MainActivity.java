@@ -32,14 +32,7 @@ public class MainActivity extends AppCompatActivity implements Conversation.Dele
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Smooch.init(getApplication(), new Settings("5a4becab852acd004bdedffc"), new SmoochCallback() {
-            @Override
-            public void run(SmoochCallback.Response response) {
-                Smooch.getConversation().setDelegate(MainActivity.this);
-                getMessages();
-                renderConversationHistory();
-            }
-        });
+        Smooch.getConversation().setDelegate(MainActivity.this);
     }
 
     public void renderConversationHistory() {
@@ -93,7 +86,8 @@ public class MainActivity extends AppCompatActivity implements Conversation.Dele
 
     @Override
     public void onInitializationStatusChanged(InitializationStatus initializationStatus) {
-
+        getMessages();
+        renderConversationHistory();
     }
 
     @Override
