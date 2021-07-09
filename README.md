@@ -120,7 +120,7 @@ Now that we've defined the UI for our messaging application, we can call Smooch'
 ### 1. Integrate Smooch
 
 See this [guide](https://docs.smooch.io/guide/native-android-sdk/) for adding the Smooch framework to your app. We've included a quick start here:
-- in _Gradle Scripts > build.gradle (Module: app)_ add the line `implementation 'io.smooch:core:5.7.3'` to dependencies
+- in _Gradle Scripts > build.gradle (Module: app)_ add the line `implementation 'io.smooch:core:X.X.X'` to dependencies
 - click _Sync Now_ to load the new dependency.
 
 Now you'll have to create an Application class which we'll call _CustomUiApp_, and link it in _manifests > AndroidManifest.xml_ with this entry under _application_ `android:name="<your_package_name>.CustomUiApp"`.
@@ -138,7 +138,7 @@ public class CustomUiApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Smooch.init(this, new Settings("<your_app_id>"), null);
+        Smooch.init(this, new Settings("<your_integration_id>"), null);
     }
 }
 ```
@@ -180,6 +180,7 @@ Before we star adding delegates we need to create a new method to write messages
 ```java
 public void getMessages() {
     List<Message> messages;
+    conversationText = "" ;
     for (Message message : messages = Smooch.getConversation().getMessages()) {
         String text = !message.isFromCurrentUser() ? message.getName() + " says " + message.getText() : message.getText();
         conversationText += text + "\n";
@@ -187,10 +188,10 @@ public void getMessages() {
 }
 ```
 
-Now, we're going to implement the delegate in our _MainActivity_ class with _implements Conversation.Delegate_ like so:
+Now, we're going to implement the delegate in our _MainActivity_ class with _implements ConversationDelegate_ like so:
 
 ```java
-public class MainActivity extends AppCompatActivity implements Conversation.Delegate {...}
+public class MainActivity extends AppCompatActivity implements ConversationDelegate {...}
 ```
 
 Once you add that implementation the Android Studio IDE will give you the option of providing the methods required by them implementation. Add the required methods automatically. They are:
@@ -238,18 +239,12 @@ public void onInitializationStatusChanged(InitializationStatus initializationSta
 }
 ```
 
-Lastly, in the _onCreate_ method, we need to attach our _MainActivity_ as the delegate to the Smooch conversation by adding this line to the init callback:
+Lastly, in the Activity _onCreate_ method, we need to attach our _MainActivity_ as the delegate to the Smooch conversation by adding this line:
 
 ```java
 protected void onCreate(Bundle savedInstanceState) {
       ...
-      Smooch.init(getApplication(), new Settings("<your_app_id>"), new SmoochCallback() {
-          @Override
-          public void run(SmoochCallback.Response response) {
-              Smooch.getConversation().setDelegate(MainActivity.this);
-              ...
-          }
-      });
+      Smooch.setConversationDelegate(MainActivity.this);
 }
 ```
 
